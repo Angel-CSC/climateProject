@@ -5,7 +5,7 @@ import pandas as pd
 from main import get_data
 
 # Load the trained model
-model = load_model("climate_model.h5")
+model = load_model("climate_model.keras")
 
 # Load the scaler
 scaler = joblib.load("scaler.pkl")
