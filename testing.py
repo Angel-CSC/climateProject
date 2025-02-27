@@ -4,46 +4,56 @@ import numpy as np
 import pandas as pd
 from main import get_data
 
-# Load the trained model
-model = load_model("climate_model.keras")
-
-# Load the scaler
+# Load the trained model and scaler
+model = load_model("climate_model.keras")  # Update to .keras format
 scaler = joblib.load("scaler.pkl")
 
-# Fetch data for a specific location (latitude, longitude)
-lat = 51  # Example latitude
-long = 50  # Example longitude
+# Fetch the most recent data
+lat, long = 51, 50  # Example location
 data = get_data(lat, long)
-data.dropna(inplace=True)  # Drop missing values
+data.dropna(inplace=True)
 
-# Define the target columns (features the model was trained on)
+# Target features
 target_columns = ['temperature_2m', 'precipitation', 'rain', 'snowfall', 'pressure_msl']
 
-# Normalize the data using the saved scaler
+# Normalize data
 data[target_columns] = scaler.transform(data[target_columns])
 
-# Prepare the sequence data
+# Sequence settings
 sequence_length = 6
 features = len(target_columns)
 
-def create_sequences(data, seq_length):
-    X = []
-    for i in range(len(data) - seq_length):
-        X.append(data[i:i+seq_length])
-    return np.array(X)
+# Function to generate a year of predictions
+def predict_future(data, model, scaler, days=365):
+    input_sequence = data[target_columns].values[-sequence_length:]  # Last 6 days
+    predictions = []
 
-X = create_sequences(data[target_columns].values, sequence_length)
+    for _ in range(days):
+        # Reshape input and predict the next day
+        input_reshaped = input_sequence.reshape(1, sequence_length, features)
+        pred = model.predict(input_reshaped)
 
-# Use the model to make predictions for the next time step
-predictions = model.predict(X[-1].reshape(1, sequence_length, features))
+        # Store the predicted values
+        predictions.append(pred[0])  # Store as a 1D array
 
-# Inverse transform the predictions to get them back to the original scale
+        # Update the input sequence by appending the new prediction
+        input_sequence = np.vstack([input_sequence[1:], pred])  # Shift left and add new pred
+
+    return np.array(predictions)
+
+# Generate predictions for the next 365 days
+predictions = predict_future(data, model, scaler, 2000)
+
+# Inverse transform to get real values
 predicted_values = scaler.inverse_transform(predictions)
 
-# Print the predicted values
-print(f"Predicted values for the next time step (latitude: {lat}, longitude: {long}):")
-print(f"Temperature: {predicted_values[0][0]}°C")
-print(f"Precipitation: {predicted_values[0][1]} mm")
-print(f"Rain: {predicted_values[0][2]} mm")
-print(f"Snowfall: {predicted_values[0][3]} mm")
-print(f"Pressure: {predicted_values[0][4]} hPa")
+# Convert to DataFrame for better readability
+future_dates = pd.date_range(start=pd.to_datetime("today"), periods=365, freq='D')
+df_predictions = pd.DataFrame(predicted_values, columns=target_columns, index=future_dates)
+
+# Print sample output
+print("Predicted Climate Conditions for the Next Year:")
+print(df_predictions.head(10))  # Print first 10 days
+
+# Save to CSV for analysis
+df_predictions.to_csv("yearly_predictions.csv")
