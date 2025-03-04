@@ -1,34 +1,22 @@
+#will now be testing future climate data
+
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
-from get_functions import get_yearly
+import joblib
 
-# Load data
-data = get_yearly(75.525547, -43.453885)
+# Future year to predict
+future_year = np.array([[2030]])  # Must be 2D for sklearn
 
-# Extract year and target variables
-X = data[['year']].values  # Feature (independent variable)
+# Columns to predict
 columns = ['temperature_2m', 'precipitation', 'rain', 'snowfall', 'pressure_msl']
 
-# Initialize plot
-fig, axes = plt.subplots(len(columns), 1, figsize=(8, 12), sharex=True)
+# Load models and make predictions
+future_predictions = {}
+for col in columns:
+    model = joblib.load(f"./models/{col}_linear_model.pkl")  # Load saved model
+    prediction = model.predict(future_year)
+    future_predictions[col] = prediction[0][0]  # Extract the predicted value
 
-# Train and plot regression for each column
-for i, col in enumerate(columns):
-    y = data[col].values.reshape(-1, 1)  # Target (dependent variable)
-
-    # Train linear regression model
-    model = LinearRegression()
-    model.fit(X, y)
-    y_pred = model.predict(X)
-
-    # Plot actual data and regression line
-    axes[i].scatter(X, y, color='blue', label='Actual Data', alpha=0.5)
-    axes[i].plot(X, y_pred, color='red', linewidth=2, label='Linear Fit')
-    axes[i].set_ylabel(col)
-    axes[i].legend()
-    axes[i].grid()
-
-axes[-1].set_xlabel('Year')
-plt.tight_layout()
-plt.show()
+# Print predictions
+print(f"Predictions for year {future_year[0][0]}:")
+for col, value in future_predictions.items():
+    print(f"{col}: {value}")
