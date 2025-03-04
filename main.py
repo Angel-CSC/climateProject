@@ -52,5 +52,5 @@ def get_data(lat, long):
     # Compute daily averages
     daily_dataframe = hourly_dataframe.groupby("date").mean().reset_index()
 
-    print(daily_dataframe)
+
     return daily_dataframe

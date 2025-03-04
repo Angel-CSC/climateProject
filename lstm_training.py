@@ -39,8 +39,8 @@ y_train, y_test = y[:split], y[split:]
 
 # Build efficient LSTM model
 model = Sequential([
-    LSTM(32, activation="relu", return_sequences=False, input_shape=(sequence_length, features), unroll=True),
-    Dense(32, activation='relu'),
+    LSTM(16, activation="relu", return_sequences=False, input_shape=(sequence_length, features), unroll=True),
+    Dense(16, activation='relu'),
     Dense(features)  # Predict all features
 ])
 
