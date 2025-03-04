@@ -1,56 +1,34 @@
-import openmeteo_requests
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from get_functions import get_yearly
 
-import requests_cache
-import pandas as pd
-from retry_requests import retry
+# Load data
+data = get_yearly(75.525547, -43.453885)
 
-# Setup the Open-Meteo API client with cache and retry on error
-cache_session = requests_cache.CachedSession('.cache', expire_after = -1)
-retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)
-openmeteo = openmeteo_requests.Client(session = retry_session)
+# Extract year and target variables
+X = data[['year']].values  # Feature (independent variable)
+columns = ['temperature_2m', 'precipitation', 'rain', 'snowfall', 'pressure_msl']
 
+# Initialize plot
+fig, axes = plt.subplots(len(columns), 1, figsize=(8, 12), sharex=True)
 
-def get_data(lat, long):
-    url = "https://archive-api.open-meteo.com/v1/archive"
-    params = {
-        "latitude": lat,
-        "longitude": long,
-        "start_date": "1940-01-01",
-        "end_date": "2025-02-24",
-        "hourly": ["temperature_2m", "precipitation", "rain", "snowfall", "pressure_msl"]
-    }
-    responses = openmeteo.weather_api(url, params=params)
+# Train and plot regression for each column
+for i, col in enumerate(columns):
+    y = data[col].values.reshape(-1, 1)  # Target (dependent variable)
 
-    # Process first location
-    response = responses[0]
-    print(f"Coordinates {response.Latitude()}°N {response.Longitude()}°E")
-    print(f"Elevation {response.Elevation()} m asl")
-    print(f"Timezone {response.Timezone()} {response.TimezoneAbbreviation()}")
-    print(f"Timezone difference to GMT+0 {response.UtcOffsetSeconds()} s")
+    # Train linear regression model
+    model = LinearRegression()
+    model.fit(X, y)
+    y_pred = model.predict(X)
 
-    # Process hourly data
-    hourly = response.Hourly()
-    hourly_data = {
-        "date": pd.date_range(
-            start=pd.to_datetime(hourly.Time(), unit="s", utc=True),
-            end=pd.to_datetime(hourly.TimeEnd(), unit="s", utc=True),
-            freq=pd.Timedelta(seconds=hourly.Interval()),
-            inclusive="left"
-        ),
-        "temperature_2m": hourly.Variables(0).ValuesAsNumpy(),
-        "precipitation": hourly.Variables(1).ValuesAsNumpy(),
-        "rain": hourly.Variables(2).ValuesAsNumpy(),
-        "snowfall": hourly.Variables(3).ValuesAsNumpy(),
-        "pressure_msl": hourly.Variables(4).ValuesAsNumpy(),
-    }
+    # Plot actual data and regression line
+    axes[i].scatter(X, y, color='blue', label='Actual Data', alpha=0.5)
+    axes[i].plot(X, y_pred, color='red', linewidth=2, label='Linear Fit')
+    axes[i].set_ylabel(col)
+    axes[i].legend()
+    axes[i].grid()
 
-    hourly_dataframe = pd.DataFrame(hourly_data)
-
-    # Convert datetime to date-only for daily aggregation
-    hourly_dataframe["date"] = hourly_dataframe["date"].dt.date
-
-    # Compute daily averages
-    daily_dataframe = hourly_dataframe.groupby("date").mean().reset_index()
-
-
-    return daily_dataframe
+axes[-1].set_xlabel('Year')
+plt.tight_layout()
+plt.show()

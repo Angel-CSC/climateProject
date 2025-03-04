@@ -2,15 +2,15 @@ from tensorflow.keras.models import load_model
 import joblib
 import numpy as np
 import pandas as pd
-from main import get_data
+from get_functions import get_yearly
 
 # Load the trained model and scaler
 model = load_model("climate_model.keras")  # Update to .keras format
 scaler = joblib.load("scaler.pkl")
 
 # Fetch the most recent data
-lat, long = 51, 50  # Example location
-data = get_data(lat, long)
+lat, long = 32.9126, -96.6389  # Example location
+data = get_yearly(lat, long)
 data.dropna(inplace=True)
 
 # Target features
