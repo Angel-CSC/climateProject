@@ -1,38 +1,66 @@
 import { useState } from "react";
+import Button from "../components/ui/button"; // Import your Button component
 
 const MapComponent = () => {
-    const [coords, setCoords] = useState({ lat: 0, lng: 0 });
+    const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+    const [buttonVisible, setButtonVisible] = useState(false);
 
-    const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    const handleMapClick = (event: React.MouseEvent<HTMLDivElement>) => {
         const { left, top, width, height } = event.currentTarget.getBoundingClientRect();
 
-        // Adjust scaling to fit the image properly
+        // Convert click position to longitude and latitude
         const x = ((event.clientX - left) / width) * 360 - 180; // Longitude
         const y = 90 - ((event.clientY - top) / height) * 180; // Latitude
 
         setCoords({ lat: y, lng: x });
+        setButtonVisible(true); // Show the "Next" button
     };
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
             <h1 className="text-2xl font-bold mb-4">Select a Location</h1>
-            
-            {/* Map Container with Controlled Scaling */}
+
+            {/* Map Container */}
             <div 
-                className="relative w-[1000px] h-[600px] border border-gray-500 overflow-hidden"
-                onMouseMove={handleMouseMove}
+                className="relative w-[1000px] h-[600px] border border-gray-500 overflow-hidden cursor-pointer"
+                onClick={handleMapClick}
             >
                 <img 
-                    src="/map.png" // Ensure it's placed in /public
+                    src="/map.png" 
                     alt="World Map" 
                     className="w-full h-full object-fill"
                 />
+                
+                {/* Clicked Coordinates Indicator */}
+                {coords && (
+                    <div
+                        className="absolute w-4 h-4 bg-red-500 rounded-full border-2 border-white"
+                        style={{
+                            top: `${((90 - coords.lat) / 180) * 100}%`,
+                            left: `${((coords.lng + 180) / 360) * 100}%`,
+                            transform: "translate(-50%, -50%)",
+                        }}
+                    />
+                )}
             </div>
 
-            {/* Display Coordinates */}
-            <p className="mt-4 text-lg">
-                Longitude: {coords.lng.toFixed(2)}, Latitude: {coords.lat.toFixed(2)}
-            </p>
+            {/* Show Coordinates */}
+            {coords && (
+                <p className="mt-4 text-lg">
+                    Selected: Longitude {coords.lng.toFixed(2)}, Latitude {coords.lat.toFixed(2)}
+                </p>
+            )}
+
+            {/* Show "Next" Button with Custom Styling */}
+            {buttonVisible && (
+                <Button 
+                    to="/next" // Replace with your actual next page path
+                    variant="bg-gradient-to-r from-primary to-accent"
+                    className="text-sm hover:opacity-90 mt-6"
+                >
+                    Next
+                </Button>
+            )}
         </div>
     );
 };
