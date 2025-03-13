@@ -28,9 +28,11 @@ export default function Navbar() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Button className="text-sm bg-gradient-to-r from-primary to-accent hover:opacity-90">
-              Get Started
-            </Button>
+            <Link to="/map-page">
+              <Button className="text-sm bg-gradient-to-r from-primary to-accent hover:opacity-90">
+                Get Started
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
