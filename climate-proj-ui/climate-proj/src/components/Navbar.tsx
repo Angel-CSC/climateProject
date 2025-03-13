@@ -19,10 +19,10 @@ export default function Navbar() {
                   About Us
                 </Link>
                 <Link to="#" className="text-sm text-gray-300 hover:text-white">
-                  How it Works
+                  How It Works
                 </Link>
                 <Link to="#" className="text-sm text-gray-300 hover:text-white">
-                  Get Started
+                  Our Mission
                 </Link>
               </div>
             </div>
