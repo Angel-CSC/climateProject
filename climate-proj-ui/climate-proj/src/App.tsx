@@ -5,6 +5,7 @@ import AboutUs from "./pages/AboutUs";
 import MapPage from "./pages/MapPage";
 import ParameterSelection from "./pages/ParameterSelection";
 import Troll from "./pages/Troll";
+import HowItWorks from "./pages/HowItWorks";
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
           <Route path="/map-page" element={<MapPage/>} />
           <Route path="/parameter-page" element={<ParameterSelection/>} />
           <Route path="/trolled" element={<Troll/>} />
+          <Route path="/how-it-works" element={<HowItWorks/>} />
         </Routes>
       </div>
     </Router>

@@ -22,13 +22,13 @@ export default function Navbar() {
                   About Us
                 </Link>
                 <Link
-                  to="#"
+                  to="/how-it-works"
                   className="text-sm text-white hover:text-gray-400 border-r border-white pr-6"
                 >
                   How It Works
                 </Link>
                 <Link
-                  to="#"
+                  to="/references"
                   className="text-sm text-white hover:text-gray-400"
                 >
                   References

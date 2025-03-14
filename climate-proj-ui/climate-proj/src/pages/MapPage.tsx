@@ -43,13 +43,16 @@ const MapComponent = () => {
                 
                 {/* Clicked Coordinates Indicator */}
                 {coords && (
-                    <div
-                        className="absolute w-4 h-4 bg-red-500 rounded-full border-2 border-white"
-                        style={{
-                            top: `${((90 - coords.lat) / 180) * 100}%`,
-                            left: `${((coords.lng + 180) / 360) * 100}%`,
-                            transform: "translate(-50%, -50%)",
-                        }}
+                <div
+                    className="absolute w-10 h-10 bg-red-500 rounded-full border-2 border-white"
+                    style={{
+                    top: `${((90 - coords.lat) / 180) * 100}%`,
+                    left: `${((coords.lng + 180) / 360) * 100}%`,
+                    transform: "translate(-50%, -50%)",
+                    backgroundImage: 'url(/anthonytran.jpg)',  // Add your image path here
+                    backgroundSize: 'cover',  // Ensures the image covers the entire circle
+                    backgroundPosition: 'center',  // Centers the image inside the circle
+                    }}
                     />
                 )}
             </div>

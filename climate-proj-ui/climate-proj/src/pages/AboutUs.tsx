@@ -1,11 +1,11 @@
 const AboutUs = () => {
     const members = [
-        { name: "Angel Gomez", description: "Big Peepee" },
-        { name: "Anothony Tran", description: "Little peepee but still the goat." },
-        { name: "Gabe", description: "Just little peepee" },
-        { name: "Sabik", description: "Goat and Big Peepee" },
-        { name: "Hyuntae", description: "The goat team lead of all time goat." },
-        { name: "Nivedh", description: "I dont know him but he chill af." },
+        { name: "Angel Gomez - Backend", description: "Big Peepee" },
+        { name: "Anothony Tran - Frontend", description: "Little peepee but still the goat." },
+        { name: "Gabe - Backend", description: "Just little peepee" },
+        { name: "Sabik - Backend", description: "Goat and Big Peepee" },
+        { name: "Hyuntae - Team Lead", description: "The goat team lead of all time goat." },
+        { name: "Nivedh - Front End", description: "I dont know him but he chill af." },
     ];
 
     return (
