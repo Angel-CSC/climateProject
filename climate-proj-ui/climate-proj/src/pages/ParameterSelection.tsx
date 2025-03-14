@@ -3,3 +3,4 @@ const ParameterSelection = () => {
         <div></div>
     );
 };
+export default ParameterSelection;

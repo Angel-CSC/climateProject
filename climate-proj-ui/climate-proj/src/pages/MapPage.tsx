@@ -54,7 +54,7 @@ const MapComponent = () => {
             {/* Show "Next" Button with Custom Styling */}
             {buttonVisible && (
                 <Button 
-                    to="/next" // Replace with your actual next page path
+                    to="/parameter-page" // Replace with your actual next page path
                     variant="bg-gradient-to-r from-primary to-accent"
                     className="text-sm hover:opacity-90 mt-6"
                 >
