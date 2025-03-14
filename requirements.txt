@@ -1,0 +1,9 @@
+pandas
+scikit-learn #this is still in limbo, not sure if i will be using this
+numpy
+matplotlib
+openmeteo-requests
+requests-cache
+retry-requests
+tensorflow
+joblib
