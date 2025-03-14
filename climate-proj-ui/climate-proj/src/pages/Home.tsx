@@ -6,7 +6,7 @@ const Home = () => {
       <div 
         className="flex flex-col items-center justify-start min-h-screen w-full text-gray-900"
         style={{ 
-          backgroundImage: 'url(/background.jpg)', 
+          backgroundImage: 'url(/homepage-background.jpg)', 
           backgroundSize: 'cover',  // Ensures the image covers the full screen without stretching
           backgroundPosition: 'center 0%',  // Adjusts the vertical position of the background image
           width: '100vw',  // Ensures the div takes the full viewport width
