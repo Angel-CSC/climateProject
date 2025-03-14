@@ -17,8 +17,18 @@ const MapComponent = () => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-            <h1 className="text-2xl font-bold mb-4">Select a Location</h1>
+        <div className="flex flex-col items-center justify-start min-h-screen bg-gray-100 overflow-y-auto pb-6"
+        style={{ 
+            backgroundImage: 'url(/general-background.jpg)', 
+            backgroundSize: 'cover',  // Ensures the image covers the full screen without stretching
+            backgroundPosition: 'center 0%',  // Adjusts the vertical position of the background image
+            backgroundAttachment: 'fixed',
+            width: '100vw',  // Ensures the div takes the full viewport width
+            overflowX: 'hidden',  // Prevents horizontal scrolling
+            paddingTop: '6rem'
+        }}
+        >
+            <h1 className="text-2xl font-bold mb-4 text-white">Select A Location By Clicking Anywhere On The Map!</h1>
 
             {/* Map Container */}
             <div 
@@ -46,7 +56,7 @@ const MapComponent = () => {
 
             {/* Show Coordinates */}
             {coords && (
-                <p className="mt-4 text-lg">
+                <p className="mt-4 text-lg text-white">
                     Selected: Longitude {coords.lng.toFixed(2)}, Latitude {coords.lat.toFixed(2)}
                 </p>
             )}
@@ -56,7 +66,7 @@ const MapComponent = () => {
                 <Button 
                     to="/parameter-page" // Replace with your actual next page path
                     variant="bg-gradient-to-r from-primary to-accent"
-                    className="text-sm hover:opacity-90 mt-6"
+                    className="text-sm hover:opacity-90 mt-6 w-60 h-12 flex items-center justify-center"
                 >
                     Next
                 </Button>

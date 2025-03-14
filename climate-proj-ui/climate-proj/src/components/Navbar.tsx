@@ -37,9 +37,9 @@ export default function Navbar() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Link to="/map-page">
+            <Link to="/trolled">
               <Button className="text-sm bg-gradient-to-r from-primary to-accent hover:opacity-90">
-                Get Started
+                Sign In
               </Button>
             </Link>
           </div>
