@@ -31,7 +31,7 @@ export default function Navbar() {
                   to="#"
                   className="text-sm text-white hover:text-gray-400"
                 >
-                  Our Mission
+                  References
                 </Link>
               </div>
             </div>
