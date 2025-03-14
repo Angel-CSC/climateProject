@@ -8,9 +8,9 @@ const Home = () => {
         style={{ 
           backgroundImage: 'url(/background.jpg)', 
           backgroundSize: 'cover',  // Ensures the image covers the full screen without stretching
-          backgroundPosition: 'center 50%',  // Adjusts the vertical position of the background image
+          backgroundPosition: 'center 0%',  // Adjusts the vertical position of the background image
           width: '100vw',  // Ensures the div takes the full viewport width
-          height: '120vh',  // Ensures the div takes the full viewport height
+          height: '100vh',  // Ensures the div takes the full viewport height
           overflowX: 'hidden',  // Prevents horizontal scrolling
           paddingTop: '6rem'
         }}
