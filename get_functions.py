@@ -1,10 +1,8 @@
 import openmeteo_requests
-
 import requests_cache
 import pandas as pd
 from retry_requests import retry
 
-# Setup the Open-Meteo API client with cache and retry on error
 cache_session = requests_cache.CachedSession('.cache', expire_after = -1)
 retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)
 openmeteo = openmeteo_requests.Client(session = retry_session)
@@ -21,14 +19,12 @@ def get_data(lat, long):
     }
     responses = openmeteo.weather_api(url, params=params)
 
-    # Process first location
     response = responses[0]
     print(f"Coordinates {response.Latitude()}°N {response.Longitude()}°E")
     print(f"Elevation {response.Elevation()} m asl")
     print(f"Timezone {response.Timezone()} {response.TimezoneAbbreviation()}")
     print(f"Timezone difference to GMT+0 {response.UtcOffsetSeconds()} s")
 
-    # Process hourly data
     hourly = response.Hourly()
     hourly_data = {
         "date": pd.date_range(
@@ -46,7 +42,6 @@ def get_data(lat, long):
 
     hourly_dataframe = pd.DataFrame(hourly_data)
 
-    # Convert datetime to date-only for daily aggregation
     hourly_dataframe["date"] = hourly_dataframe["date"].dt.date
     
     return hourly_dataframe
@@ -68,10 +63,8 @@ def get_yearly(lat, long):
     """Convert daily data into yearly averages."""
     daily_dataframe = get_daily(lat, long)
     
-    # Extract the year as an integer instead of using a datetime object
     daily_dataframe["year"] = pd.to_datetime(daily_dataframe["date"]).dt.year
     
-    # Drop the 'date' column before computing the mean to avoid datetime operations
     yearly_dataframe = daily_dataframe.drop(columns=["date"]).groupby("year").mean().reset_index()
     
     return yearly_dataframe
