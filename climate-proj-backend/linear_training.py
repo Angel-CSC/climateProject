@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import joblib
 from sklearn.linear_model import LinearRegression
@@ -7,20 +9,21 @@ from get_functions import get_yearly
 def train(lat, long):
     data = get_yearly(lat, long)
 
+    if data is None:
+        print("No data retrieved for the given coordinates.")
+        return
+
     X = data[['year']].values
     columns = ['temperature_2m', 'precipitation', 'rain', 'snowfall', 'pressure_msl']
-
     models = {}
 
     fig, axes = plt.subplots(len(columns), 1, figsize=(8, 12), sharex=True)
 
     for i, col in enumerate(columns):
         y = data[col].values.reshape(-1, 1)
-
         model = LinearRegression()
         model.fit(X, y)
         y_pred = model.predict(X)
-
         models[col] = model
         joblib.dump(model, f"./models/{col}_linear_model.pkl")
 
@@ -30,10 +33,9 @@ def train(lat, long):
         axes[i].legend()
         axes[i].grid()
 
-
     axes[-1].set_xlabel('Year')
     plt.tight_layout()
-    #return plt
-    plt.show()
+    plt.savefig("./plots/linear_regression.png")
+    plt.close()
 
-    print("Models saved successfully.")
+    print("Models saved and plot generated successfully.")

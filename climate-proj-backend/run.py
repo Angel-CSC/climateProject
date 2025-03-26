@@ -11,8 +11,9 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000",  # React app URL during development
-    #"http://0.0.0.0:8000",    # Added 0.0.0.0 URL to allow requests from this address
+    "http://localhost:3002",  # React app URL during development
+    "http://localhost:3001",  # React app URL during development
+    "http://localhost:3000",
 ]
 
 print("running")
