@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { CoordsProvider } from "./components/CoordsContext";
 import NavBar from "./components/Navbar";
 import Home from "./pages/Home";
 import AboutUs from "./pages/AboutUs";
@@ -9,19 +10,21 @@ import HowItWorks from "./pages/HowItWorks";
 
 const App = () => {
   return (
-    <Router>
-      <NavBar />
-      <div>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about-us" element={<AboutUs />} />
-          <Route path="/map-page" element={<MapPage/>} />
-          <Route path="/parameter-page" element={<ParameterSelection/>} />
-          <Route path="/trolled" element={<Troll/>} />
-          <Route path="/how-it-works" element={<HowItWorks/>} />
-        </Routes>
-      </div>
-    </Router>
+    <CoordsProvider>
+      <Router>
+        <NavBar />
+        <div>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about-us" element={<AboutUs />} />
+            <Route path="/map-page" element={<MapPage />} />
+            <Route path="/parameter-page" element={<ParameterSelection />} />
+            <Route path="/trolled" element={<Troll />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
+          </Routes>
+        </div>
+      </Router>
+    </CoordsProvider>
   );
 };
 

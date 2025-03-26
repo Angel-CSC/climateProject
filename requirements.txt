@@ -7,3 +7,5 @@ requests-cache
 retry-requests
 tensorflow
 joblib
+fastapi
+"fastapi[standard]"

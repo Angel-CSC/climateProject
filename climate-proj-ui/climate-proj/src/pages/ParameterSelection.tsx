@@ -1,7 +1,39 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../components/ui/button"; // Import your Button component
+import { useCoords } from "./../components/CoordsContext";
 
 const ParameterSelection = () => {
+    // Pull coordinates from the context
+    const { coords } = useCoords();
+    
+    useEffect(() => {
+        if(coords) {
+            sendCoordsToBackend();
+        }
+    }, [coords])
+    
+    const sendCoordsToBackend = async () => {
+        try {
+            const response = await fetch("http://0.0.0.0:8000/send-data/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                
+                body: JSON.stringify(coords),
+            });
+
+            const data = await response.json();
+            console.log("Backend response:", data);
+        } catch (error) {
+            console.error("Error sending coordinates:", error);
+        }
+    };
+
+    // Log the coordinates to the console
+    console.log("Here are the coordinates chosen:", coords);
+
+
     return (
         <div
             className="flex flex-col items-center justify-center min-h-screen bg-gray-100 pb-6"
@@ -55,5 +87,6 @@ const ParameterSelection = () => {
         </div>
     );
 };
+
 
 export default ParameterSelection;
