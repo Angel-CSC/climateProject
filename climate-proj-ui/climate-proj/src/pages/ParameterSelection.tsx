@@ -33,6 +33,23 @@ const ParameterSelection = () => {
     // Log the coordinates to the console
     console.log("Here are the coordinates chosen:", coords);
 
+    //button options for dynamic rendering - update as needed
+    const timeOptions = [
+        { name: "2026" },
+        { name: "2027" },
+        { name: "2028" },
+        { name: "2030" },
+        { name: "2035" },
+    ];
+
+    const parameterOptions = [
+        { name: "Temperature" },
+        { name: "Precipitation" },
+        { name: "Wind Speed" },
+        { name: "Radioactive Forcing" },
+        { name: "Sea Level" },
+    ];
+
 
     return (
         <div
@@ -49,40 +66,25 @@ const ParameterSelection = () => {
             <h1 className="text-3xl font-bold text-white mb-2 mt-4">Now Choose Your Parameters!</h1>
 
             <h2 className="font-bold mb-4 text-white">How far into the future do you want to see?</h2>
-            {/* Buttons under the first h2 */}
+            {/* time selection */}
             <div className="flex space-x-4 mb-8">
-                <Button className="border border-white text-white bg-transparent hover:bg-opacity-20 w-32 h-12">
-                    6 Months
-                </Button>
-                <Button className="border border-white text-white bg-transparent hover:bg-opacity-20 w-32 h-12">
-                    1 Year
-                </Button>
-                <Button className="border border-white text-white bg-transparent hover:bg-opacity-20 w-32 h-12">
-                    5 Years
-                </Button>
-                <Button className="border border-white text-white bg-transparent hover:bg-opacity-20 w-32 h-12">
-                    10 Years
-                </Button>
+                {timeOptions.map((option, index) => (
+                    <Button key={index} 
+                    className="border border-white text-white bg-transparent hover:bg-opacity-20 w-32 h-12">
+                        {option.name}
+                    </Button>
+                ))}  
             </div>
 
             <h2 className="font-bold mb-4 text-white">Which metric do you want forecasted?</h2>
-            {/* Buttons under the second h2 */}
+            {/* parameter selection */}
             <div className="flex space-x-4">
-                <Button className="border border-white text-white bg-transparent hover:bg-opacity-20 w-32 h-12">
-                    Temperature
-                </Button>
-                <Button className="border border-white text-white bg-transparent hover:bg-opacity-20 w-32 h-12">
-                    Precipitation
-                </Button>
-                <Button className="border border-white text-white bg-transparent hover:bg-opacity-20 w-32 h-12">
-                    Wind Speed
-                </Button>
-                <Button className="border border-white text-white bg-transparent hover:bg-opacity-20 w-32 h-12">
-                    Radioactive Forcing
-                </Button>
-                <Button className="border border-white text-white bg-transparent hover:bg-opacity-20 w-32 h-12">
-                    Sea Level
-                </Button>
+                {parameterOptions.map((option, index) => (
+                    <Button key={index} 
+                    className="border border-white text-white bg-transparent hover:bg-opacity-20 w-32 h-12">
+                        {option.name}
+                    </Button>
+                ))}  
             </div>
         </div>
     );
