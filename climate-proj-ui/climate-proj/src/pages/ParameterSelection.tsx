@@ -1,54 +1,84 @@
-import { useEffect, useState } from "react";
-import Button from "../components/ui/button";
+import { useState, useEffect } from "react";
 import { useCoords } from "./../components/CoordsContext";
 
 const ParameterSelection = () => {
   const { coords } = useCoords();
-  const [selectedMetric, setSelectedMetric] = useState("");
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
   const [year, setYear] = useState("");
+  const [debouncedYear, setDebouncedYear] = useState("");
 
+  const metricOptions = [
+    "Temperature",
+    "Precipitation",
+    "Wind Speed",
+    "Radioactive Forcing",
+    "Sea Level",
+  ];
+
+  // Debounce effect for year input
   useEffect(() => {
-    if (coords) {
-      sendCoordsToBackend();
-    }
-  }, [coords, year]);
+    const handler = setTimeout(() => {
+      setDebouncedYear(year);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [year]);
 
-  const sendCoordsToBackend = async () => {
+  const toggleMetric = (option: string) => {
+    setSelectedMetrics((prev) =>
+      prev.includes(option)
+        ? prev.filter((metric) => metric !== option)
+        : [...prev, option]
+    );
+  };
+
+  const handleSubmit = async () => {
+    if (!coords) {
+      console.error("Coordinates are not available.");
+      return;
+    }
+    if (!debouncedYear) {
+      console.error("Year is not provided.");
+      return;
+    }
+    if (selectedMetrics.length === 0) {
+      console.error("No metrics are selected.");
+      return;
+    }
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+
+    console.log(`current year: ${currentYear}`)
+    console.log(`debouncedYear: ${parseInt(debouncedYear)}`)
+    if(parseInt(debouncedYear) < currentYear){
+      console.error("Must select a year after the current date");
+      return;
+    }
+
     try {
-      const response = await fetch("http://0.0.0.0:8000/send-data/", {
+      console.log(JSON.stringify({
+        ...coords,
+        year: debouncedYear,
+        metrics: selectedMetrics,
+      }))
+      const response = await fetch("http://localhost:8000/send-data/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ ...coords, year })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...coords,
+          year: debouncedYear,
+          metrics: selectedMetrics,
+        }),
       });
+      
       const data = await response.json();
       console.log("Backend response:", data);
     } catch (error) {
-      console.error("Error sending coordinates:", error);
+      console.error("Error sending data:", error);
     }
   };
 
-  const getBackendInfomation = async () => {
-    try {
-        const response = await fetch("http://0.0.0.0:8000/get_data", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ ...coords, year })
-        });
-        const data = await response.json();
-        console.log("Backend response:", data);
-      } catch (error) {
-        console.error("Error sending coordinates:", error);
-      }
-  }
-
-  const metricOptions = ["Temperature", "Precipitation", "Wind Speed", "Radioactive Forcing", "Sea Level"];
-
-  const getMetricButtonClass = (option) =>
-    selectedMetric === option
+  const getMetricButtonClass = (option: string) =>
+    selectedMetrics.includes(option)
       ? "border border-white text-white bg-blue-600 w-32 h-12"
       : "border border-white text-white bg-transparent hover:bg-opacity-20 w-32 h-12";
 
@@ -56,12 +86,12 @@ const ParameterSelection = () => {
     <div
       className="flex flex-col items-center justify-center min-h-screen bg-gray-100 pb-6"
       style={{
-        backgroundImage: 'url(/general-background.jpg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center 0%',
-        width: '100vw',
-        height: '100vh',
-        overflowX: 'hidden'
+        backgroundImage: "url(/general-background.jpg)",
+        backgroundSize: "cover",
+        backgroundPosition: "center 0%",
+        width: "100vw",
+        height: "100vh",
+        overflowX: "hidden",
       }}
     >
       <h1 className="text-3xl font-bold text-white mb-2 mt-4">
@@ -80,19 +110,25 @@ const ParameterSelection = () => {
         />
       </div>
       <h2 className="font-bold mb-4 text-white">
-        Which metric do you want forecasted?
+        Which metrics do you want forecasted? (Select one or more)
       </h2>
-      <div className="flex space-x-4">
+      <div className="flex space-x-4 mb-8">
         {metricOptions.map((option) => (
-          <Button
+          <button
             key={option}
             className={getMetricButtonClass(option)}
-            onClick={() => setSelectedMetric(option)}
+            onClick={() => toggleMetric(option)}
           >
             {option}
-          </Button>
+          </button>
         ))}
       </div>
+      <button
+        className="border border-white text-white bg-green-600 w-32 h-12"
+        onClick={handleSubmit}
+      >
+        Submit
+      </button>
     </div>
   );
 };

@@ -32,6 +32,7 @@ class Coordinates(BaseModel):
     long: float
 
 
+
 @app.get("/")
 def read_root():
     return {"message": "Hello from FastAPI!"}
