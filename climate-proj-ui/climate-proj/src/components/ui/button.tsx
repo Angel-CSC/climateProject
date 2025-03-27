@@ -4,6 +4,7 @@ interface NavButtonProps {
   to?: string; // Make `to` optional for general-purpose buttons
   variant?: string;
   className?: string;
+  onClick?: () => void;
   children: React.ReactNode;
 }
 
