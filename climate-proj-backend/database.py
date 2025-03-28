@@ -1,4 +1,5 @@
 import sqlite3
+import os
 import joblib
 import pickle
 import numpy as np
@@ -16,6 +17,8 @@ coordinates = [
     for row in range(10) 
     for col in range(10)
 ]
+
+print(len(coordinates))
 
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS models (
@@ -38,6 +41,113 @@ cursor.execute("""
 conn.commit()
 
 def retrieve_data(lat, long):
+    """Retrieve models and images for a given location from the SQLite database.
+       If the files already exist on disk, they won't be overwritten."""
+    
+    location_id = f"{lat}_{long}"
+    
+    # Define file paths for models and images
+    prec_model_file = f"./models/retrieved_{location_id}_prec_model.pkl"
+    press_model_file = f"./models/retrieved_{location_id}_press_model.pkl"
+    rain_model_file = f"./models/retrieved_{location_id}_rain_model.pkl"
+    snow_model_file = f"./models/retrieved_{location_id}_snow_model.pkl"
+    temp_model_file = f"./models/retrieved_{location_id}_temp_model.pkl"
+    prec_img_file = f"./plots/retrieved_{location_id}_prec_image.png"
+    press_img_file = f"./plots/retrieved_{location_id}_press_image.png"
+    rain_img_file = f"./plots/retrieved_{location_id}_rain_image.png"
+    snow_img_file = f"./plots/retrieved_{location_id}_snow_image.png"
+    temp_img_file = f"./plots/retrieved_{location_id}_temp_image.png"
+    
+    # If all files already exist, return their paths without re-writing
+    if all(os.path.exists(f) for f in [prec_model_file, press_model_file, rain_model_file, 
+                                        snow_model_file, temp_model_file, prec_img_file, 
+                                        press_img_file, rain_img_file, snow_img_file, temp_img_file]):
+        print(f"Files already exist for {location_id}.")
+        return {
+            "prec_model_file": prec_model_file,
+            "press_model_file": press_model_file,
+            "rain_model_file": rain_model_file,
+            "snow_model_file": snow_model_file,
+            "temp_model_file": temp_model_file,
+            "prec_img_file": prec_img_file,
+            "press_img_file": press_img_file,
+            "rain_img_file": rain_img_file,
+            "snow_img_file": snow_img_file,
+            "temp_img_file": temp_img_file
+        }
+    
+    # Otherwise, retrieve data from the database and create any missing files.
+    cursor.execute("""
+        SELECT 
+            precipitation_model, pressure_model, rain_model, snowfall_model, temperature_model,
+            precipitation_image, pressure_image, rain_image, snowfall_image, temperature_image,
+            float1, float2
+        FROM models
+        WHERE location_id = ?
+    """, (location_id,))
+    
+    record = cursor.fetchone()
+    
+    if record:
+        (prec_model_blob, press_model_blob, rain_model_blob, snow_model_blob, temp_model_blob,
+         prec_img_blob, press_img_blob, rain_img_blob, snow_img_blob, temp_img_blob,
+         float1, float2) = record
+        
+        # Write out each file only if it doesn't exist
+        if not os.path.exists(prec_model_file):
+            with open(prec_model_file, "wb") as f:
+                f.write(prec_model_blob)
+        if not os.path.exists(press_model_file):
+            with open(press_model_file, "wb") as f:
+                f.write(press_model_blob)
+        if not os.path.exists(rain_model_file):
+            with open(rain_model_file, "wb") as f:
+                f.write(rain_model_blob)
+        if not os.path.exists(snow_model_file):
+            with open(snow_model_file, "wb") as f:
+                f.write(snow_model_blob)
+        if not os.path.exists(temp_model_file):
+            with open(temp_model_file, "wb") as f:
+                f.write(temp_model_blob)
+                
+        if not os.path.exists(prec_img_file):
+            with open(prec_img_file, "wb") as f:
+                f.write(prec_img_blob)
+        if not os.path.exists(press_img_file):
+            with open(press_img_file, "wb") as f:
+                f.write(press_img_blob)
+        if not os.path.exists(rain_img_file):
+            with open(rain_img_file, "wb") as f:
+                f.write(rain_img_blob)
+        if not os.path.exists(snow_img_file):
+            with open(snow_img_file, "wb") as f:
+                f.write(snow_img_blob)
+        if not os.path.exists(temp_img_file):
+            with open(temp_img_file, "wb") as f:
+                f.write(temp_img_blob)
+        
+        print(f"Retrieved data for {location_id}: float1 = {float1}, float2 = {float2}")
+        return {
+            "prec_model_file": prec_model_file,
+            "press_model_file": press_model_file,
+            "rain_model_file": rain_model_file,
+            "snow_model_file": snow_model_file,
+            "temp_model_file": temp_model_file,
+            "prec_img_file": prec_img_file,
+            "press_img_file": press_img_file,
+            "rain_img_file": rain_img_file,
+            "snow_img_file": snow_img_file,
+            "temp_img_file": temp_img_file,
+            "float1": float1,
+            "float2": float2
+        }
+    else:
+        print("No data found for this location.")
+        return None
+
+
+'''
+def retrieve_data(lat, long):
     """Retrieve models and images for a given location from the SQLite database."""
     
     location_id = f"{lat}_{long}"
@@ -52,6 +162,7 @@ def retrieve_data(lat, long):
     """, (location_id,))
     
     record = cursor.fetchone()
+
     
     if record:
         (prec_model_blob, press_model_blob, rain_model_blob, snow_model_blob, temp_model_blob,
@@ -123,7 +234,8 @@ def retrieve_data(lat, long):
         }
     else:
         print("No data found for this location.")
-        return None
+        return None'
+'''
 
 
 
@@ -196,6 +308,7 @@ def store_data(
 
 
 def train():
+    print("inside the train un")
     i = 0
     while i < len(coordinates):
 
