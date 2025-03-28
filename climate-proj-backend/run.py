@@ -39,9 +39,11 @@ def read_root():
 
 @app.post("/send-data/")
 def send_data(coords: dict = Body(...)):
+    print(f"coords: {coords}")
     lat, long = coords["lat"], coords["long"]
     print(lat, long)
     value = train(lat, long)
+    
 
 
     print("the plt might have been made")
