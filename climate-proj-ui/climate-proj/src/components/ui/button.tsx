@@ -8,7 +8,7 @@ interface NavButtonProps {
   children: React.ReactNode;
 }
 
-const Button = ({ to, variant, className, children }: NavButtonProps) => {
+const Button = ({ to, variant, className, onClick, children }: NavButtonProps) => {
   const buttonClasses = `${variant || "bg-gray-700"} ${className || ""} px-4 py-2 text-sm text-gray-300 hover:text-white rounded-md transition duration-300`;
 
   // If `to` is provided, use `Link`, otherwise use a plain button
@@ -21,7 +21,7 @@ const Button = ({ to, variant, className, children }: NavButtonProps) => {
   }
 
   return (
-    <button className={buttonClasses}>
+    <button onClick={onClick} className={buttonClasses}>
       {children}
     </button>
   );
