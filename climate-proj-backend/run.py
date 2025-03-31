@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Body
 from pydantic import BaseModel
+import math
 from linear_training import train
 #import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
@@ -39,13 +40,27 @@ def read_root():
 
 @app.post("/send-data/")
 def send_data(coords: dict = Body(...)):
+    closest_coordinate = float('inf')
+
+    hot_spots = [
+        [-90 + row * 20, -180 + col * 36] 
+        for row in range(10) 
+        for col in range(10)
+    ]
+
+    closest_lat, closest_long = hot_spots[0][0], hot_spots[0][1]
+
     print(f"coords: {coords}")
-    lat, long = coords["lat"], coords["long"]
-    print(lat, long)
-    value = train(lat, long)
+    lat, long = float(coords["lat"]), float(coords["long"])
+
+    for hot_spot in hot_spots:
+        difference = math.sqrt((lat - hot_spot[0]) ** 2 + (long - hot_spot[1]) ** 2)
     
+        if difference < closest_coordinate:
+            closest_coordinate = difference
+            closest_lat = hot_spot[0]
+            closest_long = hot_spot[1]
 
-
-    print("the plt might have been made")
-
-    return {"received_name": coords}
+    return {"difference of closest coordinate": closest_coordinate,
+            "lat": closest_lat,
+            "long": closest_long}

@@ -1,0 +1,1 @@
+the primary key of the database is the "{latitude}_{longtitude}"
