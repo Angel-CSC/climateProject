@@ -40,6 +40,22 @@ cursor.execute("""
 
 conn.commit()
 
+def check_if_file_exist(lat, long):
+    location = f"{lat}_{long}"
+    directory = "./plots"
+
+    if not os.path.exists(directory):
+        return False
+
+    for filename in os.listdir(directory):
+        if location in filename:
+            print(f"{location} exist already")
+            return True
+        
+    print(f"{location} does not exist yet")
+
+    return False
+
 def retrieve_data(lat, long):
     """Retrieve models and images for a given location from the SQLite database.
        If the files already exist on disk, they won't be overwritten."""
