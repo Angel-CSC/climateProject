@@ -18,6 +18,25 @@ const MapComponent = () => {
         setButtonVisible(true);
     };
 
+    const handleNext = async () => {
+        try {
+            console.log(JSON.stringify({
+              ...coords,
+            }))
+            const response = await fetch("http://localhost:8000/send-data/", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                ...coords,
+              }),
+            });
+            const data = await response.json();
+            console.log("Backend response:", data);
+          } catch (error) {
+            console.error("Error sending data:", error);
+          }
+    }
+
     return (
         <div className="flex flex-col items-center justify-start min-h-screen bg-gray-100 overflow-y-auto pb-6"
             style={{ 
@@ -68,13 +87,16 @@ const MapComponent = () => {
 
             {/* Show "Next" Button with Custom Styling */}
             {buttonVisible && (
-                <Button 
-                    to="/parameter-page"
-                    variant="bg-gradient-to-r from-primary to-accent"
-                    className="text-sm hover:opacity-90 mt-6 w-60 h-12 flex items-center justify-center"
-                >
-                    Next
-                </Button>
+                <div onClick={handleNext}>
+                    <Button 
+                        to="/parameter-page"
+                        variant="bg-gradient-to-r from-primary to-accent"
+                        className="text-sm hover:opacity-90 mt-6 w-60 h-12 flex items-center justify-center"
+                        
+                    >
+                        Next
+                    </Button>
+                </div>
             )}
         </div>
     );

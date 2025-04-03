@@ -8,4 +8,4 @@ retry-requests
 tensorflow
 joblib
 fastapi
-"fastapi[standard]"
+fastapi[standard]
