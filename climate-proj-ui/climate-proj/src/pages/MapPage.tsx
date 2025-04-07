@@ -1,4 +1,4 @@
-import React, { useState } from "react"; // Added import for useState
+import React, { useState } from "react";
 import { useCoords } from "./../components/CoordsContext";
 import Button from "../components/ui/button";
 

@@ -1,4 +1,5 @@
 const AboutUs = () => {
+    
     const members = [
         { name: "Angel Gomez - Backend", description: "Big Peepee" },
         { name: "Anothony Tran - Frontend", description: "Little peepee but still the goat." },
@@ -12,11 +13,11 @@ const AboutUs = () => {
         <div className="min-h-screen bg-gray-100 pt-20 pb-10" 
         style={{ 
           backgroundImage: 'url(/general-background.jpg)', 
-          backgroundSize: 'cover',  // Ensures the image covers the full screen without stretching
-          backgroundPosition: 'center 0%',  // Adjusts the vertical position of the background image
-          width: '100vw',  // Ensures the div takes the full viewport width
-          height: '100vh',  // Ensures the div takes the full viewport height
-          overflowX: 'hidden',  // Prevents horizontal scrolling
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 0%',
+          width: '100vw', 
+          height: '100vh',
+          overflowX: 'hidden',
           paddingTop: '6rem'
         }}>
             {/* Added pt-24 to create space for the navbar */}
