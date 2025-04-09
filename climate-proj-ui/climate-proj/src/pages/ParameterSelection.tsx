@@ -15,7 +15,6 @@ const ParameterSelection = () => {
     "Sea Level",
   ];
 
-  // Debounce effect for year input
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedYear(year);

@@ -1,4 +1,4 @@
-import React, { useState } from "react"; // Added import for useState
+import React, { useState } from "react";
 import { useCoords } from "./../components/CoordsContext";
 import Button from "../components/ui/button";
 
@@ -9,9 +9,8 @@ const MapComponent = () => {
     const handleMapClick = (event: React.MouseEvent<HTMLDivElement>) => {
         const { left, top, width, height } = event.currentTarget.getBoundingClientRect();
 
-        // Convert click position to longitude and latitude
-        const x = ((event.clientX - left) / width) * 360 - 180; // Longitude
-        const y = 90 - ((event.clientY - top) / height) * 180; // Latitude
+        const x = ((event.clientX - left) / width) * 360 - 180;
+        const y = 90 - ((event.clientY - top) / height) * 180;
 
         setCoords({ lat: y, long: x });
         console.log("the coords got labeled in context file")
@@ -51,7 +50,6 @@ const MapComponent = () => {
         >
             <h1 className="text-2xl font-bold mb-4 text-white">Select A Location By Clicking Anywhere On The Map!</h1>
 
-            {/* Map Container */}
             <div 
                 className="relative w-[1000px] h-[600px] border border-gray-500 overflow-hidden cursor-pointer"
                 onClick={handleMapClick}
@@ -61,8 +59,7 @@ const MapComponent = () => {
                     alt="World Map" 
                     className="w-full h-full object-fill"
                 />
-                
-                {/* Clicked Coordinates Indicator */}
+            
                 {coords && (
                     <div
                         className="absolute w-10 h-10 bg-red-500 rounded-full border-2 border-white"
@@ -78,14 +75,12 @@ const MapComponent = () => {
                 )}
             </div>
 
-            {/* Show Coordinates */}
             {coords && (
                 <p className="mt-4 text-lg text-white">
                     Selected: Longitude {coords.long.toFixed(2)}, Latitude {coords.lat.toFixed(2)}
                 </p>
             )}
 
-            {/* Show "Next" Button with Custom Styling */}
             {buttonVisible && (
                 <div onClick={handleNext}>
                     <Button 
