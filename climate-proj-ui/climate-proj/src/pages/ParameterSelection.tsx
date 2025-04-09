@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { useCoords } from "./../components/CoordsContext";
 
 const ParameterSelection = () => {
+  const { coords } = useCoords();
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
+  const [year, setYear] = useState("");
+  const [debouncedYear, setDebouncedYear] = useState("");
 
   const metricOptions = [
     "Temperature",
@@ -19,10 +23,66 @@ const ParameterSelection = () => {
     return () => clearTimeout(handler);
   }, [year]);
 
+
+
   const getMetricButtonClass = (option: string) =>
     selectedMetrics.includes(option)
       ? "border border-white text-white bg-blue-600 w-32 h-12"
       : "border border-white text-white bg-transparent hover:bg-opacity-20 w-32 h-12";
+
+      const toggleMetric = (option: string) => {
+        setSelectedMetrics((prev) =>
+          prev.includes(option)
+            ? prev.filter((metric) => metric !== option)
+            : [...prev, option]
+        );
+      };
+    
+      const handleSubmit = async () => {
+        if (!coords) {
+          console.error("Coordinates are not available.");
+          return;
+        }
+        if (!debouncedYear) {
+          console.error("Year is not provided.");
+          return;
+        }
+        if (selectedMetrics.length === 0) {
+          console.error("No metrics are selected.");
+          return;
+        }
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+    
+        console.log(`current year: ${currentYear}`)
+        console.log(`debouncedYear: ${parseInt(debouncedYear)}`)
+        if(parseInt(debouncedYear) < currentYear){
+          console.error("Must select a year after the current date");
+          return;
+        }
+    
+        try {
+          console.log(JSON.stringify({
+            ...coords,
+            year: debouncedYear,
+            metrics: selectedMetrics,
+          }))
+          const response = await fetch("http://localhost:8000/send-data/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...coords,
+              year: debouncedYear,
+              metrics: selectedMetrics,
+            }),
+          });
+          
+          const data = await response.json();
+          console.log("Backend response:", data);
+        } catch (error) {
+          console.error("Error sending data:", error);
+        }
+      };
 
   return (
     <div
