@@ -2,7 +2,7 @@
 echo "Starting FastAPI server..."
 cd climate-proj-backend || exit 1  
 source .venv/bin/activate 
-uvicorn run:app --reload --host 0.0.0.0 --port 8000 & 
+fastapi run start
 
 cd ".."
 
