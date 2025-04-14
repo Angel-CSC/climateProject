@@ -15,7 +15,7 @@ const Home = () => {
           paddingTop: '6rem'
         }}
       >
-        <h1 className="text-4xl font-bold mb-4 text-white">ANTHONY TRAN IS NOT GRADUATING</h1>
+        <h1 className="text-4xl font-bold mb-4 text-white">Climate Forcast</h1>
         <p className="text-lg text-white mb-4 text-center px-6 sm:px-12 md:px-20 lg:px-42">
           Welcome to our climate change forecasting tool! <br /><br />
           This tool allows users to see what climate change will look like in the future...
