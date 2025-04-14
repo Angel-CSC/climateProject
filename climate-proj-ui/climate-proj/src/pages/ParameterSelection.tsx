@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { useCoords } from "./../components/CoordsContext";
-import { Link } from "react-router";
 import Button from "../components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const ParameterSelection = () => {
   const { coords } = useCoords();
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
   const [year, setYear] = useState("");
   const [debouncedYear, setDebouncedYear] = useState("");
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   const metricOptions = [
     "Temperature",
@@ -42,14 +44,17 @@ const ParameterSelection = () => {
       const handleSubmit = async () => {
         if (!coords) {
           console.error("Coordinates are not available.");
+          setError("Coordinates are not available");
           return;
         }
         if (!debouncedYear) {
           console.error("Year is not provided.");
+          setError("Year is not provided.");
           return;
         }
         if (selectedMetrics.length === 0) {
           console.error("No metrics are selected.");
+          setError("No metrics are selected.");
           return;
         }
         const currentDate = new Date();
@@ -59,6 +64,7 @@ const ParameterSelection = () => {
         console.log(`debouncedYear: ${parseInt(debouncedYear)}`)
         if(parseInt(debouncedYear) < currentYear){
           console.error("Must select a year after the current date");
+          setError("Must select a year after the current date");
           return;
         }
     
@@ -80,6 +86,7 @@ const ParameterSelection = () => {
           
           const data = await response.json();
           console.log("Backend response:", data);
+          navigate("/results");
         } catch (error) {
           console.error("Error sending data:", error);
         }
@@ -99,7 +106,8 @@ const ParameterSelection = () => {
     >
       <Button to="/map-page" className="mt-20 ml-4 max-w-16 border border-white text-white bg-transparent hover:bg-white/30">Back</Button>
       <div className="flex-1 flex flex-col items-center justify-center">
-        <h1 className="text-3xl font-bold text-white mb-2 mt-4">
+        <p className="text-red-500 mt-2 text-2xl">{error}</p>
+        <h1 className="text-3xl font-bold text-white mb-2 mt-2">
           Now Choose Your Parameters!
         </h1>
         <h2 className="font-bold mb-4 text-white">
@@ -128,14 +136,12 @@ const ParameterSelection = () => {
             </button>
           ))}
         </div>
-        <Link to="/results">
-          <button
-            className="border border-white text-white bg-green-600 w-32 h-12"
-            onClick={handleSubmit}
-          >
-            Submit
-          </button>
-        </Link>
+        <button
+          className="border border-white text-white bg-green-600 w-32 h-12"
+          onClick={handleSubmit}
+        >
+          Submit
+        </button>
       </div>
       
         

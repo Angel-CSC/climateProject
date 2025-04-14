@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import Button from "./ui/button"; // Corrected import statement
+//import Button from "./ui/button";
 
 export default function Navbar() {
   return (
@@ -36,6 +36,7 @@ export default function Navbar() {
               </div>
             </div>
           </div>
+          {/*
           <div className="flex items-center space-x-4">
             <Link to="/trolled">
               <Button className="text-sm bg-gradient-to-r from-primary to-accent hover:opacity-90">
@@ -43,6 +44,7 @@ export default function Navbar() {
               </Button>
             </Link>
           </div>
+          */}
         </div>
       </div>
     </nav>
