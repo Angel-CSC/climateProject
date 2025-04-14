@@ -1,12 +1,12 @@
 const AboutUs = () => {
     
     const members = [
-        { name: "Angel Gomez - Backend", description: `Senior in Computer Science. Interned at NVIDIA` },
-        { name: "Anothony Tran - Frontend", description: `Senior in Computer Science. Interned at Tyler Technologies` },
-        { name: "Gabe - Backend", description: `Senior in Computer Science. Interned at Tyler Technologies` },
-        { name: "Sabik - Frontend", description: `Senior in Computer Science. Interned at Mr. Cooper` },
+        { name: "Angel Gomez - Backend", description: `Senior in Computer Science. incoming SWE intern at NVIDIA` },
+        { name: "Anothony Tran - Frontend", description: `Senior in Computer Science. incoming LEAP at Fidelity` },
+        { name: "Gabe - Backend", description: `Senior in Computer Science. incoming SWE at JP Morgan Chase` },
+        { name: "Sabik - Frontend", description: `Senior in Computer Science. incoming intern at Mr. Cooper` },
         { name: "Hyuntae - Team Lead", description: `Senior in Computer Science. Interned at Garmin. National Merit Scholar` },
-        { name: "Nivedh - Backend", description: `Senior in Computer Science. Interned at NVIDIA` },
+        { name: "Nivedh - Backend", description: `Senior in Computer Science. incoming intern at Paycom` },
     ];
 
     return (
