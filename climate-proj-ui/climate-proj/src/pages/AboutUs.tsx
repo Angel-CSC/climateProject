@@ -1,4 +1,5 @@
 const AboutUs = () => {
+    
     const members = [
         { name: "Angel Gomez - Backend", description: `Senior in Computer Science. Interned at NVIDIA` },
         { name: "Anothony Tran - Frontend", description: `Senior in Computer Science. Interned at Tyler Technologies` },
