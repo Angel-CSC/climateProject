@@ -15,7 +15,7 @@ const Troll = () => {
           paddingTop: '6rem'
         }}
       >
-        <h1 className="text-4xl font-bold mb-4 text-white">HAHA Yo ass THOUGHT I implemented a sign in page</h1>
+        <h1 className="text-4xl font-bold mb-4 text-white">To Be Implemented...</h1>
       </div>
     );
 };

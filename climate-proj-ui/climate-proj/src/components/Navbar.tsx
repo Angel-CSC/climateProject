@@ -11,7 +11,7 @@ export default function Navbar() {
               to="/"
               className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
             >
-              Daddies
+              Climate
             </Link>
             <div className="hidden md:block ml-10">
               <div className="flex items-center space-x-8">
@@ -28,10 +28,10 @@ export default function Navbar() {
                   How It Works
                 </Link>
                 <Link
-                  to="/references"
+                  to="/"
                   className="text-sm text-white hover:text-gray-400"
                 >
-                  References
+                  Home
                 </Link>
               </div>
             </div>
