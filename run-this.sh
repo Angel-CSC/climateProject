@@ -1,14 +1,32 @@
-# Navigate to FastAPI project and start the API
-echo "Starting FastAPI server..."
-cd climate-proj-backend || exit 1  
-source .venv/bin/activate 
-fastapi run run.py
+#!/bin/bash
 
-cd ".."
+OS=$(uname)
 
-# Navigate to React project and start React server
-echo "Starting React app..."
-cd climate-proj-ui/climate-proj
-npm start
+if [[ "$OS" == "Darwin" ]]; then
+    echo "Detected macOS"
 
-wait
+    # Start FastAPI server in a new Terminal window
+    osascript <<EOF
+tell application "Terminal"
+    do script "cd $(pwd)/climate-proj-backend; source .venv/bin/activate; fastapi run run.py"
+end tell
+EOF
+
+    # Start React app in another new Terminal window
+    osascript <<EOF
+tell application "Terminal"
+    do script "cd $(pwd)/climate-proj-ui/climate-proj; npm start"
+end tell
+EOF
+
+elif [[ "$OS" == "MINGW"* || "$OS" == "MSYS"* ]]; then
+    echo "Detected Windows (Git Bash)"
+    
+    # Git Bash workaround: Launch separate Git Bash windows using 'start'
+    start "" "bash" -c "cd climate-proj-backend && source .venv/Scripts/activate && fastapi run run.py"
+    start "" "bash" -c "cd climate-proj-ui/climate-proj && npm start"
+
+else
+    echo "Unsupported OS: $OS"
+    exit 1
+fi
