@@ -2,7 +2,7 @@
 echo "Starting FastAPI server..."
 cd climate-proj-backend || exit 1  
 source .venv/bin/activate 
-fastapi run start
+fastapi run run.py
 
 cd ".."
 

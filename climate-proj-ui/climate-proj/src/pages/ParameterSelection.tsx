@@ -14,9 +14,9 @@ const ParameterSelection = () => {
   const metricOptions = [
     "Temperature",
     "Precipitation",
-    "Wind Speed",
-    "Radioactive Forcing",
-    "Sea Level",
+    "Pressure",
+    "Rain",
+    "Snowfall",
   ];
 
   useEffect(() => {
@@ -71,16 +71,16 @@ const ParameterSelection = () => {
         try {
           console.log(JSON.stringify({
             ...coords,
-            year: debouncedYear,
-            metrics: selectedMetrics,
+            "year": debouncedYear,
+            "metrics": selectedMetrics,
           }))
-          const response = await fetch("http://localhost:8000/send-data/", {
+          const response = await fetch("http://localhost:8000/get-models/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               ...coords,
-              year: debouncedYear,
-              metrics: selectedMetrics,
+              "year": debouncedYear,
+              "metrics": selectedMetrics,
             }),
           });
           

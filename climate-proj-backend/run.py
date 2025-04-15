@@ -1,8 +1,7 @@
 from fastapi import FastAPI, Body
 from pydantic import BaseModel
+import sqlite3
 import math
-from linear_training import train
-#import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -12,12 +11,11 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 origins = [
-    "http://localhost:3002",  # React app URL during development
-    "http://localhost:3001",  # React app URL during development
-    "http://localhost:3000",
+    "*"
 ]
 
 print("running")
+
 
 # Add CORS middleware to the app
 app.add_middleware(
@@ -50,7 +48,6 @@ def send_data(coords: dict = Body(...)):
 
     closest_lat, closest_long = hot_spots[0][0], hot_spots[0][1]
 
-    print(f"coords: {coords}")
     lat, long = float(coords["lat"]), float(coords["long"])
 
     for hot_spot in hot_spots:
@@ -61,6 +58,42 @@ def send_data(coords: dict = Body(...)):
             closest_lat = hot_spot[0]
             closest_long = hot_spot[1]
 
-    return {"difference of closest coordinate": closest_coordinate,
-            "lat": closest_lat,
-            "long": closest_long}
+    return {
+        'difference': difference,
+        'closest_lat': closest_lat,
+        'closest_long': closest_long
+    }
+
+
+
+
+@app.post("/get-models/")
+def send_models(coords: dict = Body(...)):
+    
+    closest_lat = coords["lat"]
+    closest_long = coords["long"]
+    temp_metrics = coords["metrics"]
+    metrics = []
+
+    for metric in temp_metrics:
+        metric = metric.lower()
+        metrics.append(f"{metric}_model")
+        metrics.append(f"{metric}_image")
+    
+    columns = ", ".join(metrics)
+    print(columns)
+
+    query = f"SELECT {columns} FROM models WHERE location_id = ?"
+
+    conn = sqlite3.connect("database.sqlite", check_same_thread=False)
+    cur = conn.cursor()
+
+    cur.execute(query, (f"{closest_lat}_{closest_long}",))
+    result = cur.fetchone()
+
+    conn.close()
+
+
+    data = dict(zip(metrics, result)) if result else None
+
+    return None
