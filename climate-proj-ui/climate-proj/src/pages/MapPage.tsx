@@ -30,6 +30,7 @@ const MapComponent = () => {
               }),
             });
             const data = await response.json();
+            setCoords({lat: data["closest_lat"], long: data["closest_long"]})
             console.log("Backend response:", data);
           } catch (error) {
             console.error("Error sending data:", error);

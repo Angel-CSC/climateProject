@@ -3,6 +3,10 @@ from pydantic import BaseModel
 import sqlite3
 import math
 from fastapi.middleware.cors import CORSMiddleware
+import joblib
+import numpy as np
+import io
+import base64
 
 
 #if __name__ == "__main__":
@@ -31,10 +35,11 @@ class Coordinates(BaseModel):
     long: float
 
 
-
 @app.get("/")
 def read_root():
     return {"message": "Hello from FastAPI!"}
+
+
 
 @app.post("/send-data/")
 def send_data(coords: dict = Body(...)):
@@ -69,11 +74,13 @@ def send_data(coords: dict = Body(...)):
 
 @app.post("/get-models/")
 def send_models(coords: dict = Body(...)):
-    
     closest_lat = coords["lat"]
     closest_long = coords["long"]
     temp_metrics = coords["metrics"]
+    future_year = int(coords["year"])
     metrics = []
+
+    print(f"the coords sent from the previous api point: {coords}")
 
     for metric in temp_metrics:
         metric = metric.lower()
@@ -85,7 +92,7 @@ def send_models(coords: dict = Body(...)):
 
     query = f"SELECT {columns} FROM models WHERE location_id = ?"
 
-    conn = sqlite3.connect("database.sqlite", check_same_thread=False)
+    conn = sqlite3.connect("./database.sqlite", check_same_thread=False)
     cur = conn.cursor()
 
     cur.execute(query, (f"{closest_lat}_{closest_long}",))
@@ -93,7 +100,31 @@ def send_models(coords: dict = Body(...)):
 
     conn.close()
 
+    predicted_values = {}
+    image_data = {}
+
 
     data = dict(zip(metrics, result)) if result else None
 
-    return None
+    for col in data.keys():
+        print(f"type of {col}: {type(data[col])}")
+    
+    
+    if data:
+        for column in data.keys():
+            if "model" in column:
+                model_blob = data[column]
+                model = joblib.load(io.BytesIO(model_blob))
+                prediction = model.predict(np.array([[future_year]]))
+                predicted_values[column] = prediction[0][0]
+            elif "image" in column:
+                image_blob = data[column]
+                if image_blob:
+                    # Convert binary image blob to base64 string
+                    base64_image = base64.b64encode(image_blob).decode("utf-8")
+                    image_data[column] = base64_image
+
+    return {
+        "predictions": predicted_values,
+        "images": image_data
+    }
