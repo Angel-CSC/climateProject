@@ -120,7 +120,6 @@ def send_models(coords: dict = Body(...)):
             elif "image" in column:
                 image_blob = data[column]
                 if image_blob:
-                    # Convert binary image blob to base64 string
                     base64_image = base64.b64encode(image_blob).decode("utf-8")
                     image_data[column] = base64_image
 
