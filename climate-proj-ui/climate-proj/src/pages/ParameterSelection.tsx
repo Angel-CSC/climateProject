@@ -33,64 +33,86 @@ const ParameterSelection = () => {
       ? "border border-white text-white bg-blue-600 w-32 h-12"
       : "border border-white text-white bg-transparent hover:bg-opacity-20 w-32 h-12";
 
-      const toggleMetric = (option: string) => {
-        setSelectedMetrics((prev) =>
-          prev.includes(option)
-            ? prev.filter((metric) => metric !== option)
-            : [...prev, option]
-        );
-      };
-    
-      const handleSubmit = async () => {
-        if (!coords) {
-          console.error("Coordinates are not available.");
-          setError("Coordinates are not available");
-          return;
+  const toggleMetric = (option: string) => {
+    setSelectedMetrics((prev) =>
+      prev.includes(option)
+        ? prev.filter((metric) => metric !== option)
+        : [...prev, option]
+    );
+  };
+
+  const handleSubmit = async () => {
+    if (!coords) {
+      console.error("Coordinates are not available.");
+      setError("Coordinates are not available");
+      return;
+    }
+    if (!debouncedYear) {
+      console.error("Year is not provided.");
+      setError("Year is not provided.");
+      return;
+    }
+    if (selectedMetrics.length === 0) {
+      console.error("No metrics are selected.");
+      setError("No metrics are selected.");
+      return;
+    }
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+
+    console.log(`current year: ${currentYear}`)
+    console.log(`debouncedYear: ${parseInt(debouncedYear)}`)
+    if (parseInt(debouncedYear) < currentYear) {
+      console.error("Must select a year after the current date");
+      setError("Must select a year after the current date");
+      return;
+    }
+
+    try {
+      sessionStorage.setItem('lat', coords.lat.toString());
+      sessionStorage.setItem('long', coords.long.toString());
+      sessionStorage.setItem('year', debouncedYear);
+      sessionStorage.setItem('metrics', JSON.stringify(selectedMetrics));
+
+      console.log("Storing in session storage:", {
+        lat: coords.lat,
+        long: coords.long,
+        year: debouncedYear,
+        metrics: selectedMetrics,
+      });
+
+      console.log(JSON.stringify({
+        ...coords,
+        "year": debouncedYear,
+        "metrics": selectedMetrics,
+      }));
+
+      const response = await fetch("http://localhost:8000/get-models/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...coords,
+          "year": debouncedYear,
+          "metrics": selectedMetrics,
+        }),
+      });
+
+      const data = await response.json();
+      console.log("Backend response:", data);
+
+      navigate("/results", {
+        state: {
+          lat: coords.lat,
+          long: coords.long,
+          year: parseInt(debouncedYear),
+          metrics: selectedMetrics
         }
-        if (!debouncedYear) {
-          console.error("Year is not provided.");
-          setError("Year is not provided.");
-          return;
-        }
-        if (selectedMetrics.length === 0) {
-          console.error("No metrics are selected.");
-          setError("No metrics are selected.");
-          return;
-        }
-        const currentDate = new Date();
-        const currentYear = currentDate.getFullYear();
-    
-        console.log(`current year: ${currentYear}`)
-        console.log(`debouncedYear: ${parseInt(debouncedYear)}`)
-        if(parseInt(debouncedYear) < currentYear){
-          console.error("Must select a year after the current date");
-          setError("Must select a year after the current date");
-          return;
-        }
-    
-        try {
-          console.log(JSON.stringify({
-            ...coords,
-            "year": debouncedYear,
-            "metrics": selectedMetrics,
-          }))
-          const response = await fetch("http://localhost:8000/get-models/", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              ...coords,
-              "year": debouncedYear,
-              "metrics": selectedMetrics,
-            }),
-          });
-          
-          const data = await response.json();
-          console.log("Backend response:", data);
-          navigate("/results");
-        } catch (error) {
-          console.error("Error sending data:", error);
-        }
-      };
+      });
+    } catch (error) {
+      console.error("Error sending data:", error);
+      setError("Error communicating with the server. Please try again.");
+    }
+  };
 
   return (
     <div
@@ -143,8 +165,8 @@ const ParameterSelection = () => {
           Submit
         </button>
       </div>
-      
-        
+
+
     </div>
   );
 };
