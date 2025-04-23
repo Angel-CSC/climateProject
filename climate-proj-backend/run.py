@@ -3,14 +3,12 @@ from pydantic import BaseModel
 import sqlite3
 import math
 from fastapi.middleware.cors import CORSMiddleware
+import json
 import joblib
 import numpy as np
 import io
 import base64
 
-
-#if __name__ == "__main__":
-#    uvicorn.run("run:app", host="0.0.0.0", port=8000, reload=True)
 
 app = FastAPI()
 
@@ -87,6 +85,10 @@ def send_models(coords: dict = Body(...)):
         metrics.append(f"{metric}_model")
         metrics.append(f"{metric}_image")
     
+    
+
+    metrics.append("yearly_averages_json")
+    
     columns = ", ".join(metrics)
     print(columns)
 
@@ -105,6 +107,7 @@ def send_models(coords: dict = Body(...)):
 
 
     data = dict(zip(metrics, result)) if result else None
+    print(data.keys())
 
     for col in data.keys():
         print(f"type of {col}: {type(data[col])}")
@@ -125,5 +128,6 @@ def send_models(coords: dict = Body(...)):
 
     return {
         "predictions": predicted_values,
-        "images": image_data
+        "images": image_data,
+        "yearly_average": json.loads(data["yearly_averages_json"])
     }
