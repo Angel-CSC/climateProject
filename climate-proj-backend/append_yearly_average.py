@@ -10,17 +10,29 @@ coordinates = [
 ]
 
 def store_yearly_averages_as_json(lat, long, db_path="./database.sqlite"):
-    # Get the yearly data from your custom function
-    yearly_df = get_yearly(lat, long)
-    if yearly_df is None or yearly_df.empty:
-        print(f"No data available for ({lat}, {long})")
-        return
-
     location_id = f"{lat}_{long}"
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    # Build a JSON dictionary where each feature has its own year:value mapping
+    # Check if the current row has the JSON column populated
+    cursor.execute(
+        "SELECT yearly_averages_json FROM models WHERE location_id = ?",
+        (location_id,)
+    )
+    result = cursor.fetchone()
+    if result and result[0] is not None:
+        print(f"Skipping API call for {location_id} — data already exists.")
+        conn.close()
+        return
+
+    # Call the API since data is missing
+    yearly_df = get_yearly(lat, long)
+    if yearly_df is None or yearly_df.empty:
+        print(f"No data returned for ({lat}, {long})")
+        conn.close()
+        return
+
+    # Build the JSON structure
     json_data = {}
     for col in yearly_df.columns:
         if col != "year":
@@ -28,14 +40,7 @@ def store_yearly_averages_as_json(lat, long, db_path="./database.sqlite"):
                 str(int(row["year"])): float(row[col]) for _, row in yearly_df.iterrows()
             }
 
-    # Try adding the JSON column (only once)
-    try:
-        cursor.execute("ALTER TABLE models ADD COLUMN yearly_averages_json TEXT")
-        print("Added 'yearly_averages_json' column to models table.")
-    except sqlite3.OperationalError:
-        pass  # Column probably already exists
-
-    # Update the model row for the given location
+    # Update the database
     cursor.execute(
         "UPDATE models SET yearly_averages_json = ? WHERE location_id = ?",
         (json.dumps(json_data), location_id)
@@ -43,7 +48,7 @@ def store_yearly_averages_as_json(lat, long, db_path="./database.sqlite"):
 
     conn.commit()
     conn.close()
-    print(f"Stored yearly averages as JSON for location_id {location_id}")
+    print(f"Stored yearly averages for {location_id}")
 
 # Example usage (you can remove this if you’re importing the function elsewhere)
 if __name__ == "__main__":
