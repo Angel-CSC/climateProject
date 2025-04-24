@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import Button from "../components/ui/button";
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -17,8 +17,17 @@ type ApiResponse = {
     };
 };
 
+const metricColors = {
+    temperature: '#3182ce', // blue
+    precipitation: '#2ca02c', // green
+    pressure: '#ff7f0e',    // orange
+    rain: '#9467bd',        // purple
+    snowfall: '#e3343a'     // red
+};
+
 const Results = () => {
     const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+    const [displayedMetrics, setDisplayedMetrics] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
@@ -82,74 +91,79 @@ const Results = () => {
                     year: parseInt(year)
                 });
 
-                const currentYearResponse = await fetch('http://localhost:8000/get-models/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        lat: parseFloat(lat),
-                        long: parseFloat(long),
-                        metrics: metrics.map(m => m.toLowerCase()),
-                        year: currentYear
-                    }),
-                });
+                const currentYearData: { [key: string]: number } = {};
+                const futureYearData: { [key: string]: number } = {};
+                const metricsToDisplay: string[] = [];
 
-                if (!currentYearResponse.ok) {
-                    const errorText = await currentYearResponse.text();
-                    throw new Error(`API error for current year (${currentYearResponse.status}): ${errorText}`);
+                for (const metric of metrics) {
+                    const metricLower = metric.toLowerCase();
+
+                    const currentYearResponse = await fetch('http://localhost:8000/get-models/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            lat: parseFloat(lat),
+                            long: parseFloat(long),
+                            metrics: [metricLower],
+                            year: currentYear
+                        }),
+                    });
+
+                    if (!currentYearResponse.ok) {
+                        console.warn(`API error for current year metric ${metric}: ${currentYearResponse.status}`);
+                        continue;
+                    }
+
+                    const currentYearResult: ApiResponse = await currentYearResponse.json();
+                    console.log(`Current year API response for ${metric}:`, currentYearResult);
+
+                    const futureResponse = await fetch('http://localhost:8000/get-models/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            lat: parseFloat(lat),
+                            long: parseFloat(long),
+                            metrics: [metricLower],
+                            year: parseInt(year)
+                        }),
+                    });
+
+                    if (!futureResponse.ok) {
+                        console.warn(`API error for future year metric ${metric}: ${futureResponse.status}`);
+                        continue;
+                    }
+
+                    const futureResult: ApiResponse = await futureResponse.json();
+                    console.log(`Future year API response for ${metric}:`, futureResult);
+
+                    const metricModelKey = `${metricLower}_model`;
+
+                    if (currentYearResult.predictions &&
+                        futureResult.predictions &&
+                        currentYearResult.predictions[metricModelKey] !== undefined &&
+                        futureResult.predictions[metricModelKey] !== undefined) {
+
+                        currentYearData[metricLower] = currentYearResult.predictions[metricModelKey];
+                        futureYearData[metricLower] = futureResult.predictions[metricModelKey];
+                        metricsToDisplay.push(metricLower);
+                    }
                 }
 
-                const currentYearResult: ApiResponse = await currentYearResponse.json();
-                console.log("Current year API response:", currentYearResult);
-
-                const futureResponse = await fetch('http://localhost:8000/get-models/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        lat: parseFloat(lat),
-                        long: parseFloat(long),
-                        metrics: metrics.map(m => m.toLowerCase()),
-                        year: parseInt(year)
-                    }),
-                });
-
-                if (!futureResponse.ok) {
-                    const errorText = await futureResponse.text();
-                    throw new Error(`API error for future year (${futureResponse.status}): ${errorText}`);
+                if (metricsToDisplay.length === 0) {
+                    throw new Error('No valid prediction data received for any selected metrics');
                 }
 
-                const futureResult: ApiResponse = await futureResponse.json();
-                console.log("Future year API response:", futureResult);
+                const formattedData: ChartDataPoint[] = [
+                    { year: currentYear, ...currentYearData },
+                    { year: parseInt(year), ...futureYearData }
+                ];
 
-                if (!currentYearResult.predictions || Object.keys(currentYearResult.predictions).length === 0) {
-                    throw new Error('No current year prediction data received');
-                }
-
-                if (!futureResult.predictions || Object.keys(futureResult.predictions).length === 0) {
-                    throw new Error('No future prediction data received');
-                }
-
-                const formattedData: ChartDataPoint[] = [];
-
-                const currentData: ChartDataPoint = { year: currentYear };
-
-                const futureData: ChartDataPoint = { year: parseInt(year) };
-
-                Object.entries(currentYearResult.predictions).forEach(([key, value]) => {
-                    const metricName = key.replace('_model', '');
-                    currentData[metricName] = value; // Use actual value from API
-                });
-
-                Object.entries(futureResult.predictions).forEach(([key, value]) => {
-                    const metricName = key.replace('_model', '');
-                    futureData[metricName] = value;
-                });
-
-                formattedData.push(currentData, futureData);
                 setChartData(formattedData);
+                setDisplayedMetrics(metricsToDisplay);
 
                 console.log("Formatted chart data:", formattedData);
             } catch (err) {
@@ -167,17 +181,21 @@ const Results = () => {
         fetchData();
     }, [location]);
 
-    const getDataKey = (): string => {
-        if (chartData.length > 0) {
-            const keys = Object.keys(chartData[0]).filter(key => key !== 'year');
-            return keys.length > 0 ? keys[0] : 'temperature';
-        }
-        return 'temperature';
-    };
-
     const handleBackClick = () => {
         navigate('/parameter-page');
     };
+
+    const capitalizeFirstLetter = (string: string) => {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    };
+
+    const getMetricColor = (metric: string): string => {
+        return metricColors[metric as keyof typeof metricColors] || '#8884d8';
+    };
+
+    const hasValidData = chartData.length > 0 && displayedMetrics.length > 0;
+
+    const chartHeight = Math.max(350, 80 * displayedMetrics.length + 250);
 
     return (
         <div
@@ -217,10 +235,25 @@ const Results = () => {
                                 Return to Parameters
                             </Button>
                         </div>
+                    ) : !hasValidData ? (
+                        <div className="flex flex-col items-center justify-center h-64 p-6">
+                            <p className="text-lg text-yellow-500 mb-4">No valid data received for the selected metrics</p>
+                            <p className="text-gray-700">Please try with different parameters or metrics.</p>
+                            <Button
+                                onClick={() => navigate('/parameter-page')}
+                                className="mt-6 bg-blue-500 text-white hover:bg-blue-600"
+                            >
+                                Return to Parameters
+                            </Button>
+                        </div>
                     ) : (
-                        <div className="h-96">
+                        <div style={{ height: `${chartHeight}px` }}>
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                                <BarChart
+                                    data={chartData}
+                                    margin={{ top: 20, right: 30, left: 20, bottom: 50 }}
+                                    barCategoryGap="20%"
+                                >
                                     <CartesianGrid strokeDasharray="3 3" />
                                     <XAxis
                                         dataKey="year"
@@ -232,14 +265,22 @@ const Results = () => {
                                     />
                                     <YAxis
                                         label={{
-                                            value: getDataKey().charAt(0).toUpperCase() + getDataKey().slice(1),
+                                            value: displayedMetrics.length > 1 ? "Values" : capitalizeFirstLetter(displayedMetrics[0] || ""),
                                             angle: -90,
                                             position: "insideLeft",
                                             offset: 10
                                         }}
                                     />
-                                    <Tooltip />
-                                    <Bar dataKey={getDataKey()} fill="#3182ce" name={getDataKey().charAt(0).toUpperCase() + getDataKey().slice(1)} />
+                                    <Tooltip formatter={(value, name) => [`${value}`, capitalizeFirstLetter(name as string)]} />
+                                    <Legend wrapperStyle={{ paddingTop: 20 }} />
+                                    {displayedMetrics.map((metric) => (
+                                        <Bar
+                                            key={metric}
+                                            dataKey={metric}
+                                            name={capitalizeFirstLetter(metric)}
+                                            fill={getMetricColor(metric)}
+                                        />
+                                    ))}
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
