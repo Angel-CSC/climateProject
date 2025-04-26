@@ -1,0 +1,8 @@
+{'per_metric': 
+    {'precipitation':  
+        {'mae': 0.0153, 
+        'mse': 0.0007}, 
+    'pressure': 
+    {'mae': 1.073, 
+    'mse': 2.4623}, 
+    'rain': {'mae': 0.0133, 'mse': 0.0007}, 'snowfall': {'mae': 0.0016, 'mse': 0.0}, 'temperature': {'mae': 1.3793, 'mse': 11.9242}}, 'overall': {'mae': 0.4965, 'mse': 2.8776}}
