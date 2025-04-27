@@ -4,6 +4,7 @@ import io
 import numpy as np
 import json
 from sklearn.metrics import mean_absolute_error, mean_squared_error
+from pprint import pprint
 
 models_from_db = ['precipitation', 'pressure', 'rain', 'snowfall', 'temperature']
 
@@ -173,4 +174,4 @@ def calculate_average_error(db_path="./database.sqlite"):
 
 if __name__ == "__main__":
     #update_margin_errors()
-    print(calculate_average_error())
+    pprint(calculate_average_error())
