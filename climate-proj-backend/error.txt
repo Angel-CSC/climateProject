@@ -1,6 +1,6 @@
-{'overall': {'mae': 0.4363, 'mse': 2.3392},
- 'per_metric': {'precipitation': {'mae': 0.0161, 'mse': 0.0007},
-                'pressure': {'mae': 0.9779, 'mse': 2.1547},
-                'rain': {'mae': 0.0145, 'mse': 0.0007},
-                'snowfall': {'mae': 0.0013, 'mse': 0.0},
-                'temperature': {'mae': 1.1716, 'mse': 9.5398}}}
+{'overall': {'mae': 0.4299, 'mse': 2.2078},
+ 'per_metric': {'precipitation': {'mae': 0.0155, 'mse': 0.0007},
+                'pressure': {'mae': 0.9849, 'mse': 2.1931},
+                'rain': {'mae': 0.0139, 'mse': 0.0007},
+                'snowfall': {'mae': 0.0014, 'mse': 0.0},
+                'temperature': {'mae': 1.1336, 'mse': 8.8446}}}
