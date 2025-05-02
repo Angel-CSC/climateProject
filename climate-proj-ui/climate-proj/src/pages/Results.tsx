@@ -25,6 +25,14 @@ const metricColors = {
     snowfall: '#e3343a'     // red
 };
 
+const metricUnits = {
+    temperature: 'c', // blue
+    precipitation: 'mm', // green
+    pressure: 'hpa',    // orange
+    rain: 'mm',        // purple
+    snowfall: 'cm' 
+};
+
 const Results = () => {
     const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
     const [displayedMetrics, setDisplayedMetrics] = useState<string[]>([]);
@@ -157,15 +165,49 @@ const Results = () => {
                     throw new Error('No valid prediction data received for any selected metrics');
                 }
 
-                const formattedData: ChartDataPoint[] = [
-                    { year: currentYear, ...currentYearData },
-                    { year: parseInt(year), ...futureYearData }
-                ];
+                const requestedYear = parseInt(year);
+                const interval = requestedYear - currentYear;
+                const pastYears = [1, 2, 3].map(multiplier => currentYear - multiplier * interval);
 
-                setChartData(formattedData);
+                const allDataPoints: ChartDataPoint[] = [];
+
+                for (const pastYear of pastYears.reverse()) {
+                    const pastYearData: { [key: string]: number } = {};
+                    for (const metric of metricsToDisplay) {
+                        const metricLower = metric.toLowerCase();
+
+                        const response = await fetch('http://localhost:8000/get-models/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                lat: parseFloat(lat),
+                                long: parseFloat(long),
+                                metrics: [metricLower],
+                                year: pastYear
+                            }),
+                        });
+
+                        if (response.ok) {
+                            const result: ApiResponse = await response.json();
+                            const metricModelKey = `${metricLower}_model`;
+                            if (result.predictions && result.predictions[metricModelKey] !== undefined) {
+                                pastYearData[metricLower] = result.predictions[metricModelKey];
+                            }
+                        } else {
+                            console.warn(`API error for past year ${pastYear} metric ${metric}`);
+                        }
+                    }
+                    allDataPoints.push({ year: pastYear, ...pastYearData });
+                }
+
+                // Add current and requested year
+                allDataPoints.push({ year: currentYear, ...currentYearData });
+                allDataPoints.push({ year: requestedYear, ...futureYearData });
+
+                setChartData(allDataPoints);
                 setDisplayedMetrics(metricsToDisplay);
-
-                console.log("Formatted chart data:", formattedData);
             } catch (err) {
                 console.error('Error fetching data:', err);
                 if (err instanceof Error) {
@@ -187,6 +229,10 @@ const Results = () => {
 
     const capitalizeFirstLetter = (string: string) => {
         return string.charAt(0).toUpperCase() + string.slice(1);
+    };
+
+    const addUnit = (string: string) => {
+        return string.charAt(0).toUpperCase() + string.slice(1) + ' (' + metricUnits[string as keyof typeof metricColors] + ')';
     };
 
     const getMetricColor = (metric: string): string => {
@@ -268,7 +314,7 @@ const Results = () => {
                                             value: displayedMetrics.length > 1 ? "Values" : capitalizeFirstLetter(displayedMetrics[0] || ""),
                                             angle: -90,
                                             position: "insideLeft",
-                                            offset: 10
+                                            offset: 0
                                         }}
                                     />
                                     <Tooltip formatter={(value, name) => [`${value}`, capitalizeFirstLetter(name as string)]} />
@@ -277,7 +323,7 @@ const Results = () => {
                                         <Bar
                                             key={metric}
                                             dataKey={metric}
-                                            name={capitalizeFirstLetter(metric)}
+                                            name={addUnit(metric)}
                                             fill={getMetricColor(metric)}
                                         />
                                     ))}
