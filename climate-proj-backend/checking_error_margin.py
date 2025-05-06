@@ -24,7 +24,7 @@ def compute_margin_error(metrics, yearly_data, db_data):
 
     for metric in metrics:
         model_col = f"{metric}_model"
-        json_key   = json_keys.get(metric)
+        json_key  = json_keys.get(metric)
 
         margin_error[metric] = None
 
@@ -44,17 +44,28 @@ def compute_margin_error(metrics, yearly_data, db_data):
                     float(v) if v is not None else np.nan
                     for v in actual_list
                 ])
-                print(f"model_col: {model_col}")
                 preds = model.predict(years).flatten()
-                print(f"preds: {preds}")
-                print(f"actuals: {actuals}")
 
+                # Filter out missing values
                 mask = ~np.isnan(actuals)
                 y_true = actuals[mask]
-                y_pred = preds  [mask]
+                y_pred = preds[mask]
 
-                mae = mean_absolute_error(y_true, y_pred)
-                mse = mean_squared_error (y_true, y_pred)
+                if len(y_true) == 0:
+                    continue
+
+                # Min-max normalization
+                min_val = min(y_true.min(), y_pred.min())
+                max_val = max(y_true.max(), y_pred.max())
+
+                if max_val - min_val == 0:
+                    continue  # Avoid divide-by-zero
+
+                y_true_norm = (y_true - min_val) / (max_val - min_val)
+                y_pred_norm = (y_pred - min_val) / (max_val - min_val)
+
+                mae = mean_absolute_error(y_true_norm, y_pred_norm)
+                mse = mean_squared_error (y_true_norm, y_pred_norm)
 
                 margin_error[metric] = {
                     'mae': round(mae, 4),
@@ -66,6 +77,7 @@ def compute_margin_error(metrics, yearly_data, db_data):
                 margin_error[metric] = None
 
     return margin_error
+
 
 
 
