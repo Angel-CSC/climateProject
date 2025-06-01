@@ -6,5 +6,4 @@ Our project aims to use machine learning and user friendly displays to display o
 <img width="1728" alt="Screenshot 2025-06-01 at 8 47 55 AM" src="https://github.com/user-attachments/assets/b743e843-1ccc-4907-a7e0-0b5f5da4439b" />
 
 
-
  ![Screenshot 2025-06-01 032859](https://github.com/user-attachments/assets/71b3945f-8652-4f39-85cd-03be3f5fb7fb)
